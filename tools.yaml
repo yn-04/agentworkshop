@@ -1,0 +1,45 @@
+sources:
+  course-db:
+    kind: "sqlite"
+    database: "courses.db"
+
+tools:
+  search-courses-by-title:
+    kind: sqlite-sql
+    source: course-db
+    description: Search for a course by title
+    parameters:
+      - name: title
+        type: string
+        description: The course title to search for
+    statement: SELECT course_code, title, description, credits, degree_level, degree_programme, degree_year, degree_semester FROM courses WHERE title LIKE '%' || ? || '%'
+  get-course-by-code:
+    kind: sqlite-sql
+    source: course-db
+    description: Get a course by its code
+    parameters:
+      - name: course_code
+        type: string
+        description: The code of the course to retrieve
+    statement: SELECT course_code, title, description, credits, degree_level, degree_programme, degree_year, degree_semester FROM courses WHERE course_code = ?
+  search-courses-by-custom-condition:
+    kind: sqlite-sql
+    source: course-db
+    description: |
+      Search for courses based on a custom condition.
+      The condition should be a valid SQL WHERE clause without the "WHERE" keyword.
+      Example:
+      {{
+          "condition": "degree_programme = 'Computer Science' AND degree_year = 1",
+      }}
+    statement: SELECT course_code, title, description, credits, degree_level, degree_programme, degree_year, degree_semester FROM courses WHERE {{.condition}};
+    templateParameters:
+      - name: condition
+        type: string
+        description: The custom condition to filter courses
+
+toolsets:
+  basic-toolset:
+    - search-courses-by-title
+    - search-courses-by-custom-condition
+    - get-course-by-code
